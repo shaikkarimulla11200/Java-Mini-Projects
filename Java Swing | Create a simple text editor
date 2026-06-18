@@ -1,0 +1,133 @@
+import java.awt.*;
+import javax.swing.*;
+import java.io.*;
+import java.awt.event.*;
+import javax.swing.plaf.metal.*;
+
+class Editor extends JFrame implements ActionListener {
+
+    JTextArea t;
+    JFrame f;
+
+    Editor() {
+        // Create frame
+        f = new JFrame("Editor");
+
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+        } catch (Exception e) {}
+
+        // Text Area with Scroll
+        t = new JTextArea();
+        JScrollPane sp = new JScrollPane(t);
+
+        // Menu Bar
+        JMenuBar mb = new JMenuBar();
+
+        // File Menu
+        JMenu file = new JMenu("File");
+
+        JMenuItem newFile = new JMenuItem("New");
+        JMenuItem open = new JMenuItem("Open");
+        JMenuItem save = new JMenuItem("Save");
+        JMenuItem print = new JMenuItem("Print");
+
+        newFile.addActionListener(this);
+        open.addActionListener(this);
+        save.addActionListener(this);
+        print.addActionListener(this);
+
+        file.add(newFile);
+        file.add(open);
+        file.add(save);
+        file.add(print);
+
+        // Edit Menu
+        JMenu edit = new JMenu("Edit");
+
+        JMenuItem cut = new JMenuItem("Cut");
+        JMenuItem copy = new JMenuItem("Copy");
+        JMenuItem paste = new JMenuItem("Paste");
+
+        cut.addActionListener(this);
+        copy.addActionListener(this);
+        paste.addActionListener(this);
+
+        edit.add(cut);
+        edit.add(copy);
+        edit.add(paste);
+
+        // Close
+        JMenuItem close = new JMenuItem("Close");
+        close.addActionListener(this);
+
+        mb.add(file);
+        mb.add(edit);
+        mb.add(close);
+
+        f.setJMenuBar(mb);
+        f.add(sp);
+
+        f.setSize(500, 500);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true); 
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+
+        try {
+            if (s.equals("Cut")) {
+                t.cut();
+            } else if (s.equals("Copy")) {
+                t.copy();
+            } else if (s.equals("Paste")) {
+                t.paste();
+            } else if (s.equals("Save")) {
+
+                JFileChooser j = new JFileChooser();
+
+                int r = j.showSaveDialog(this);
+
+                if (r == JFileChooser.APPROVE_OPTION) {
+                    File file = j.getSelectedFile();
+
+                    BufferedWriter w = new BufferedWriter(new FileWriter(file));
+                    w.write(t.getText());
+                    w.close();
+                }
+
+            } else if (s.equals("Print")) {
+                t.print();
+
+            } else if (s.equals("Open")) {
+
+                JFileChooser j = new JFileChooser(); 
+
+                int r = j.showOpenDialog(this);
+
+                if (r == JFileChooser.APPROVE_OPTION) {
+                    File file = j.getSelectedFile();
+
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    t.read(br, null);
+                    br.close();
+                }
+
+            } else if (s.equals("New")) {
+                t.setText("");
+
+            } else if (s.equals("Close")) {
+                f.dispose();
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        new Editor();
+    }
+}
